@@ -3,16 +3,18 @@
 
 
 class BookingDetails:
+    # TODO il faut rajouter les steps budget, nb_adult, nb_children
+    # TODO doit on gerer les airports?
     def __init__(
         self,
         destination: str = None,
         origin: str = None,
-        travel_date: str = None,
+        start_date: str = None,
         unsupported_airports=None,
     ):
         if unsupported_airports is None:
             unsupported_airports = []
         self.destination = destination
         self.origin = origin
-        self.travel_date = travel_date
+        self.start_date = start_date
         self.unsupported_airports = unsupported_airports

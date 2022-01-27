@@ -31,7 +31,10 @@ class BookingDialog(CancelAndHelpDialog):
             [
                 self.destination_step,
                 self.origin_step,
-                self.travel_date_step,
+                self.start_date_step,
+                # TODO rajouter les steps budgets, adults, children
+                # TODO la date de retour peut etre calcule a partir de la max duration
+                # TODO pour calculer le nb de personnes, on peut prendre le nb d'adultes ET OU le nb d'enfants
                 self.confirm_step,
                 self.final_step,
             ],
@@ -79,24 +82,24 @@ class BookingDialog(CancelAndHelpDialog):
 
         return await step_context.next(booking_details.origin)
 
-    async def travel_date_step(
+    async def start_date_step(
         self, step_context: WaterfallStepContext
     ) -> DialogTurnResult:
-        """Prompt for travel date.
+        """Prompt for travel start date.
         This will use the DATE_RESOLVER_DIALOG."""
 
         booking_details = step_context.options
 
         # Capture the results of the previous step
         booking_details.origin = step_context.result
-        if not booking_details.travel_date or self.is_ambiguous(
-            booking_details.travel_date
+        if not booking_details.start_date or self.is_ambiguous(
+            booking_details.start_date
         ):
             return await step_context.begin_dialog(
-                DateResolverDialog.__name__, booking_details.travel_date
+                DateResolverDialog.__name__, booking_details.start_date
             )  # pylint: disable=line-too-long
 
-        return await step_context.next(booking_details.travel_date)
+        return await step_context.next(booking_details.start_date)
 
     async def confirm_step(
         self, step_context: WaterfallStepContext
@@ -105,10 +108,11 @@ class BookingDialog(CancelAndHelpDialog):
         booking_details = step_context.options
 
         # Capture the results of the previous step
-        booking_details.travel_date = step_context.result
+        booking_details.start_date = step_context.result
+        # TODO confirmation step :  ameliorer le message, mettre toutes les infos a dispositions
         msg = (
             f"Please confirm, I have you traveling to: { booking_details.destination }"
-            f" from: { booking_details.origin } on: { booking_details.travel_date}."
+            f" from: { booking_details.origin } on: { booking_details.start_date}."
         )
 
         # Offer a YES/NO prompt.
@@ -120,7 +124,7 @@ class BookingDialog(CancelAndHelpDialog):
         """Complete the interaction and end the dialog."""
         if step_context.result:
             booking_details = step_context.options
-            booking_details.travel_date = step_context.result
+            booking_details.start_date = step_context.result
 
             return await step_context.end_dialog(booking_details)
 

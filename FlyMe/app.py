@@ -54,7 +54,9 @@ ADAPTER = AdapterWithErrorHandler(SETTINGS, CONVERSATION_STATE)
 # less frequent updates.
 INSTRUMENTATION_KEY = CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY
 TELEMETRY_CLIENT = ApplicationInsightsTelemetryClient(
-    INSTRUMENTATION_KEY, telemetry_processor=AiohttpTelemetryProcessor(), client_queue_size=10
+    INSTRUMENTATION_KEY,
+    telemetry_processor=AiohttpTelemetryProcessor(),
+    client_queue_size=10,
 )
 
 # Create dialogs and Bot
@@ -73,6 +75,9 @@ async def messages(req: Request) -> Response:
         return Response(status=HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
 
     activity = Activity().deserialize(body)
+
+    print(f"activity.text : {activity.text}")
+
     auth_header = req.headers["Authorization"] if "Authorization" in req.headers else ""
 
     response = await ADAPTER.process_activity(activity, auth_header, BOT.on_turn)
@@ -85,7 +90,13 @@ APP = web.Application(middlewares=[bot_telemetry_middleware, aiohttp_error_middl
 APP.router.add_post("/api/messages", messages)
 
 if __name__ == "__main__":
-    try:
-        web.run_app(APP, host="localhost", port=CONFIG.PORT)
-    except Exception as error:
-        raise error
+    # TODO remettre l'exception
+    # try:
+    web.run_app(APP, host="localhost", port=CONFIG.PORT)
+# except Exception as error:
+#     raise error
+
+# I want to travel to Paris from Roma today for me and my friend.
+# hi there, i'm looking to go to brasilia between september 30 and october 4, could you help me?
+# I want to travel the first january 2022
+# I want to travel on 01/01/2022
