@@ -56,11 +56,11 @@ class LuisHelper:
 
                 # We need to get the result from the LUIS JSON which at every level returns an array.
                 to_entities = recognizer_result.entities.get("$instance", {}).get(
-                    "To", []
+                    "dst_city", []
                 )
                 if len(to_entities) > 0:
-                    if recognizer_result.entities.get("To", [{"$instance": {}}])[0][
-                        "$instance"
+                    if recognizer_result.entities.get("dst_city", [{"$instance": {}}])[
+                        0
                     ]:
                         result.destination = to_entities[0]["text"].capitalize()
                     else:

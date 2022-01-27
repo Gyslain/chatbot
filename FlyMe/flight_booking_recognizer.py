@@ -22,7 +22,7 @@ class FlightBookingRecognizer(Recognizer):
         luis_is_configured = (
             configuration.LUIS_APP_ID
             and configuration.LUIS_API_KEY
-            and configuration.LUIS_API_HOST_NAME
+            and configuration.LUIS_END_POINT
         )
         if luis_is_configured:
             # Set the recognizer options depending on which endpoint version you want to use e.g v2 or v3.
@@ -30,7 +30,7 @@ class FlightBookingRecognizer(Recognizer):
             luis_application = LuisApplication(
                 configuration.LUIS_APP_ID,
                 configuration.LUIS_API_KEY,
-                "https://" + configuration.LUIS_API_HOST_NAME,
+                configuration.LUIS_END_POINT,
             )
 
             options = LuisPredictionOptions()

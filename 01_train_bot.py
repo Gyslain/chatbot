@@ -17,24 +17,27 @@ from functools import reduce
 
 import json, time, uuid
 import random
+from dotenv import dotenv_values
 
-
+#%%
 matplotlib.rcParams["figure.figsize"] = (20, 10)
+config = dotenv_values(".env")
 
 #%%
 DATA_PATH = "./frames/"
-authoringKey = "828bdffc67a34d5eac71ebe8647cdd20"
-authoringEndpoint = "https://luisressource2-authoring.cognitiveservices.azure.com/"
-predictionKey = "cced1802b9ba4474bb99dd742b40343d"
-predictionEndpoint = "https://luisressource2.cognitiveservices.azure.com/"
+authoringKey = config["LUIS_AUTHORING_KEY"]
+authoringEndpoint = config["LUIS_AUTHORING_END_POINT"]
+predictionKey = config["LUIS_PREDICTION_KEY"]
+predictionEndpoint = config["LUIS_PREDICTION_END_POINT"]
 
 #%%
 # We use a UUID to avoid name collisions.
 appName = "Fly Me " + str(uuid.uuid4())
 versionId = "0.1"
-intentName = "BookFly"
+intentName = "BookFlight"
 
 #%%
+# TODO definir une classe
 client = LUISAuthoringClient(
     authoringEndpoint, CognitiveServicesCredentials(authoringKey)
 )
