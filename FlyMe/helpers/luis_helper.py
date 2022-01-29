@@ -19,12 +19,12 @@ class Intent(Enum):
 class Entities(Enum):
     TO_CITY = "dst_city"
     FROM_CITY = "or_city"
+    BUDGET = "budget"
     START_DATE = "str_date"
     END_DATE = "end_date"
-    MAX_DURATION = "max_duration"
-    BUDGET = "budget"
-    N_ADULTS = "n_adults"
-    N_CHILDREN = "n_children"
+    # MAX_DURATION = "max_duration"
+    # N_ADULTS = "n_adults"
+    # N_CHILDREN = "n_children"
 
 
 def top_intent(intents: Dict[Intent, dict]) -> TopIntent:
@@ -64,10 +64,8 @@ class LuisHelper:
             )
 
             if intent == Intent.BOOK_FLIGHT.value:
-
-                print(f"Intent : {intent}")
-                # TODO ici on reccupere les entities
-
+                
+                print(f"Luis detects {intent} intent.")
                 result = BookingDetails()
 
                 # TO_CITY
@@ -104,6 +102,21 @@ class LuisHelper:
                             from_city[0]["text"].capitalize()
                         )
 
+                # BUDGET
+                budget = recognizer_result.entities.get("$instance", {}).get(
+                    Entities.BUDGET.value, []
+                )
+                print(f"budget : {budget}")
+                if len(budget) > 0:
+                    # if recognizer_result.entities.get(
+                    #     Entities.budget.value, [{"$instance": {}}]
+                    # )[0]:
+                    if recognizer_result.entities.get(Entities.BUDGET.value, []):
+                        result.budget = budget[0]["text"]
+                        print(f"result.budget={result.budget}")
+                    else:
+                        result.budget = None
+
                 # START_DATE
                 start_date = recognizer_result.entities.get(
                     Entities.START_DATE.value, []
@@ -123,11 +136,11 @@ class LuisHelper:
 
 
 def date_recognition(date):
-    if date:
+    try:
         date = date[0]
-        if date:
-            date = dparser.parse(date, fuzzy=True)
-            # Timex recognize the date as yyyy-mm-dd format (ex : 2022-01-20')
-            return date.strftime("%Y-%m-%d")
-    else:
+        date = dparser.parse(date, fuzzy=True)
+        # Timex recognize the date as yyyy-mm-dd format (ex : 2022-01-20')
+        date = date.strftime("%Y-%m-%d")
+        return date
+    except:
         return None

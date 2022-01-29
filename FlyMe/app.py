@@ -99,3 +99,4 @@ if __name__ == "__main__":
 # hi there, i'm looking to go to brasilia between september 30 and october 4, could you help me?
 # I want to travel the first january 2022
 # I want to travel on 01/01/2022
+# I want to travel to paris for a budget of 1000$
