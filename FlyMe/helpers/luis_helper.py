@@ -104,38 +104,30 @@ class LuisHelper:
                             from_city[0]["text"].capitalize()
                         )
 
-                # This value will be a TIMEX. And we are only interested in a Date so grab the first result and drop
-                # the Time part. TIMEX is a format that represents DateTime expressions that include some ambiguity.
-                # e.g. missing a Year.
+                # START_DATE
                 start_date = recognizer_result.entities.get(
                     Entities.START_DATE.value, []
                 )
                 print(f"start_date : {start_date}")
+                result.start_date = date_recognition(start_date)
 
-                # from botbuilder.dialogs.prompts import (
-                # DateTimePrompt,
-                # PromptValidatorContext,
-                # PromptOptions,
-                # DateTimeResolution,
-                # )
-                # if "definite" in Timex(timex).types:
-                # return "definite" in Timex(timex).types
-                from datatypes_date_time.timex import Timex
-
-                # timex_property = Timex(timex)
-                # # time_property = Timex(result.start_date)
-                # DateTimeResolution(timex=timex)
-
-                if start_date:
-                    timex = start_date[0]
-                    if timex:
-                        datetime = dparser.parse(timex, fuzzy=True)
-                        # Timex recognize the date format yyyy-mm-dd (ex : 2022-01-20')
-                        result.start_date = datetime.strftime("%Y-%m-%d")
-                else:
-                    result.start_date = None
+                # END_DATE
+                end_date = recognizer_result.entities.get(Entities.END_DATE.value, [])
+                print(f"end_date : {end_date}")
+                result.end_date = date_recognition(end_date)
 
         except Exception as exception:
             print(exception)
 
         return intent, result
+
+
+def date_recognition(date):
+    if date:
+        date = date[0]
+        if date:
+            date = dparser.parse(date, fuzzy=True)
+            # Timex recognize the date as yyyy-mm-dd format (ex : 2022-01-20')
+            return date.strftime("%Y-%m-%d")
+    else:
+        return None

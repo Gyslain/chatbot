@@ -90,11 +90,10 @@ APP = web.Application(middlewares=[bot_telemetry_middleware, aiohttp_error_middl
 APP.router.add_post("/api/messages", messages)
 
 if __name__ == "__main__":
-    # TODO remettre l'exception
-    # try:
-    web.run_app(APP, host="localhost", port=CONFIG.PORT)
-# except Exception as error:
-#     raise error
+    try:
+        web.run_app(APP, host="localhost", port=CONFIG.PORT)
+    except Exception as error:
+        raise error
 
 # I want to travel to Paris from Roma today for me and my friend.
 # hi there, i'm looking to go to brasilia between september 30 and october 4, could you help me?
