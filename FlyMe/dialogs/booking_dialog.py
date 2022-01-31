@@ -8,7 +8,7 @@ from botbuilder.dialogs import WaterfallDialog, WaterfallStepContext, DialogTurn
 from botbuilder.dialogs.prompts import ConfirmPrompt, TextPrompt, PromptOptions
 from botbuilder.core import MessageFactory, BotTelemetryClient, NullTelemetryClient
 from .cancel_and_help_dialog import CancelAndHelpDialog
-from .date_resolver_dialog import DateResolverDialog
+from .date_resolver_dialog import DateResolverDialog, EndDateResolverDialog
 
 
 class BookingDialog(CancelAndHelpDialog):
@@ -34,9 +34,6 @@ class BookingDialog(CancelAndHelpDialog):
                 self.budget_step,
                 self.start_date_step,
                 self.end_date_step,
-                # TODO rajouter les steps adults, children
-                # TODO la date de retour peut etre calcule a partir de la max duration
-                # TODO pour calculer le nb de personnes, on peut prendre le nb d'adultes ET OU le nb d'enfants
                 self.confirm_step,
                 self.final_step,
             ],
@@ -47,6 +44,9 @@ class BookingDialog(CancelAndHelpDialog):
         self.add_dialog(ConfirmPrompt(ConfirmPrompt.__name__))
         self.add_dialog(
             DateResolverDialog(DateResolverDialog.__name__, self.telemetry_client)
+        )
+        self.add_dialog(
+            EndDateResolverDialog(EndDateResolverDialog.__name__, self.telemetry_client)
         )
         self.add_dialog(waterfall_dialog)
 
@@ -138,7 +138,7 @@ class BookingDialog(CancelAndHelpDialog):
         if not booking_details.end_date or self.is_ambiguous(booking_details.end_date):
             print("Prompt for end date")
             return await step_context.begin_dialog(
-                DateResolverDialog.__name__, booking_details.end_date
+                EndDateResolverDialog.__name__, booking_details.end_date
             )
 
         return await step_context.next(booking_details.end_date)

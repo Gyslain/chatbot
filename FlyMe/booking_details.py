@@ -3,7 +3,6 @@
 
 
 class BookingDetails:
-    # TODO il faut rajouter les steps budget, nb_adult, nb_children
     # TODO doit on gerer les airports?
     def __init__(
         self,

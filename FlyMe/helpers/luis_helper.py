@@ -64,7 +64,7 @@ class LuisHelper:
             )
 
             if intent == Intent.BOOK_FLIGHT.value:
-                
+
                 print(f"Luis detects {intent} intent.")
                 result = BookingDetails()
 
@@ -108,9 +108,7 @@ class LuisHelper:
                 )
                 print(f"budget : {budget}")
                 if len(budget) > 0:
-                    # if recognizer_result.entities.get(
-                    #     Entities.budget.value, [{"$instance": {}}]
-                    # )[0]:
+                    # TODO gerer le symbole $
                     if recognizer_result.entities.get(Entities.BUDGET.value, []):
                         result.budget = budget[0]["text"]
                         print(f"result.budget={result.budget}")
