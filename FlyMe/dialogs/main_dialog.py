@@ -125,8 +125,10 @@ class MainDialog(ComponentDialog):
             # If the call to the booking service was successful tell the user.
             # time_property = Timex(result.start_date)
             # start_date = time_property.to_natural_language(datetime.now())
-            # TODO ici, on doit formuler le resume. Le resume doit tenir des informations obligatoires et optionnelles.
-            msg_txt = f"I have you booked to {result.destination} from {result.origin} on {result.start_date} return on {result.end_date} for a budget of {result.budget}"
+            msg_txt = (
+                f"I have you booked to {result.destination} from {result.origin}"
+                f" on {result.start_date} return on {result.end_date} with a budget of {result.budget}"
+            )
             message = MessageFactory.text(msg_txt, msg_txt, InputHints.ignoring_input)
             await step_context.context.send_activity(message)
 

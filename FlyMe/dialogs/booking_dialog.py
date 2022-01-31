@@ -154,7 +154,8 @@ class BookingDialog(CancelAndHelpDialog):
         # TODO confirmation step :  ameliorer le message, mettre toutes les infos a dispositions
         msg = (
             f"Please confirm, I have you traveling to: { booking_details.destination }"
-            f" from: { booking_details.origin } on: { booking_details.start_date} return : { booking_details.end_date} for a budget of {booking_details.budget}."
+            f" from: { booking_details.origin } on: { booking_details.start_date}"
+            f" return: { booking_details.end_date} with a budget of {booking_details.budget}."
         )
 
         # Offer a YES/NO prompt.
