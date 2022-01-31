@@ -3,7 +3,6 @@
 
 
 class BookingDetails:
-    # TODO doit on gerer les airports?
     def __init__(
         self,
         destination: str = None,

@@ -19,24 +19,26 @@ This sample **requires** prerequisites in order to run.
 This bot uses [LUIS](https://www.luis.ai), an AI based cognitive service, to implement language understanding
 and [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/cloudservices), an extensible Application Performance Management (APM) service for web developers on multiple platforms.
 
-### Create a LUIS Application to enable language understanding
+### LUIS Application to enable language understanding
 
-LUIS language model setup, training, and application configuration steps can be found [here](https://docs.microsoft.com/azure/bot-service/bot-builder-howto-v4-luis?view=azure-bot-service-4.0&tabs=cs).
+This chat bot uses the LUIS Application to understand the customer request.
 
-If you wish to create a LUIS application via the CLI, these steps can be found in the [README-LUIS.md](README-LUIS.md).
+To connect the chat bot to LUIS Application, you have to specify the following environnement variable in a .env file :
+
+- Application ID: "LUIS_APP_ID"
+- Key: "LUIS_AUTHORING_KEY"
+- Endpoint url: "LUIS_AUTHORING_END_POINT"
 
 ### Add Application Insights service to enable the bot monitoring
 
+This appication also use the Azure Insight Instrumentation. To connect the bot to Insight, you have to define the following variable :
+
+- Insight key: "APPINSIGHTS_INSTRUMENTATION_KEY"
+
 Application Insights resource creation steps can be found [here](https://docs.microsoft.com/azure/azure-monitor/app/create-new-resource).
 
-## To try this sample
+## To try this chat bot
 
-- Clone the repository
-```bash
-git clone https://github.com/Microsoft/botbuilder-samples.git
-```
-- In a terminal, navigate to `botbuilder-samples\samples\python\21.corebot-app-insights` folder
-- Activate your desired virtual environment
 - In the terminal, type `pip install -r requirements.txt`
 - Run your bot with `python app.py`
 
@@ -52,23 +54,3 @@ git clone https://github.com/Microsoft/botbuilder-samples.git
 - File -> Open Bot
 - Enter a Bot URL of `http://localhost:3978/api/messages`
 
-## Deploy the bot to Azure
-
-To learn more about deploying a bot to Azure, see [Deploy your bot to Azure](https://aka.ms/azuredeployment) for a complete list of deployment instructions.
-
-## Further reading
-
-- [Bot Framework Documentation](https://docs.botframework.com)
-- [Bot Basics](https://docs.microsoft.com/azure/bot-service/bot-builder-basics?view=azure-bot-service-4.0)
-- [Dialogs](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-dialog?view=azure-bot-service-4.0)
-- [Gathering Input Using Prompts](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-prompts?view=azure-bot-service-4.0&tabs=csharp)
-- [Activity processing](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-activity-processing?view=azure-bot-service-4.0)
-- [Azure Bot Service Introduction](https://docs.microsoft.com/azure/bot-service/bot-service-overview-introduction?view=azure-bot-service-4.0)
-- [Azure Bot Service Documentation](https://docs.microsoft.com/azure/bot-service/?view=azure-bot-service-4.0)
-- [Azure CLI](https://docs.microsoft.com/cli/azure/?view=azure-cli-latest)
-- [Azure Portal](https://portal.azure.com)
-- [Language Understanding using LUIS](https://docs.microsoft.com/en-us/azure/cognitive-services/luis/)
-- [Channels and Bot Connector Service](https://docs.microsoft.com/en-us/azure/bot-service/bot-concepts?view=azure-bot-service-4.0)
-- [Application insights Overview](https://docs.microsoft.com/azure/azure-monitor/app/app-insights-overview)
-- [Getting Started with Application Insights](https://github.com/Microsoft/ApplicationInsights-aspnetcore/wiki/Getting-Started-with-Application-Insights-for-ASP.NET-Core)
-- [Filtering and preprocessing telemetry in the Application Insights SDK](https://docs.microsoft.com/azure/azure-monitor/app/api-filtering-sampling)
