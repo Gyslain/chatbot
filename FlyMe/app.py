@@ -52,15 +52,19 @@ ADAPTER = AdapterWithErrorHandler(SETTINGS, CONVERSATION_STATE)
 # Note the small 'client_queue_size'.  This is for demonstration purposes.  Larger queue sizes
 # result in fewer calls to ApplicationInsights, improving bot performance at the expense of
 # less frequent updates.
-INSTRUMENTATION_KEY = CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY
 TELEMETRY_CLIENT = ApplicationInsightsTelemetryClient(
-    INSTRUMENTATION_KEY,
+    CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY,
     telemetry_processor=AiohttpTelemetryProcessor(),
     client_queue_size=10,
 )
 
+
+# telemetryLoggerMiddleware =  TelemetryLoggerMiddleware(TELEMETRY_CLIENT)
+# initializerMiddleware =  TelemetryInitializerMiddleware(telemetryLoggerMiddleware)
+# adapter.use(initializerMiddleware)
+
 # Create dialogs and Bot
-RECOGNIZER = FlightBookingRecognizer(CONFIG)
+RECOGNIZER = FlightBookingRecognizer(CONFIG, TELEMETRY_CLIENT)
 BOOKING_DIALOG = BookingDialog()
 DIALOG = MainDialog(RECOGNIZER, BOOKING_DIALOG, telemetry_client=TELEMETRY_CLIENT)
 BOT = DialogAndWelcomeBot(CONVERSATION_STATE, USER_STATE, DIALOG, TELEMETRY_CLIENT)
@@ -97,6 +101,7 @@ if __name__ == "__main__":
 
 # I want to travel to Paris from Roma today for me and my friend.
 # hi there, i'm looking to go to brasilia between september 30 and october 4, could you help me?
+# i'm looking to go to brasilia from Paris between september 30 and october 4 for a budget of 1000$
 # I want to travel the first january 2022
 # I want to travel on 01/01/2022
 # I want to travel to paris for a budget of 1000$
