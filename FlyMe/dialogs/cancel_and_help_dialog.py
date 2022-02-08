@@ -17,10 +17,12 @@ class CancelAndHelpDialog(ComponentDialog):
 
     def __init__(
         self,
+        history,
         dialog_id: str,
         telemetry_client: BotTelemetryClient = NullTelemetryClient(),
     ):
         super(CancelAndHelpDialog, self).__init__(dialog_id)
+        self.history = history
         self.telemetry_client = telemetry_client
 
     async def on_begin_dialog(
@@ -45,11 +47,15 @@ class CancelAndHelpDialog(ComponentDialog):
             text = inner_dc.context.activity.text.lower()
 
             if text in ("help", "?"):
-                await inner_dc.context.send_activity("Show Help...")
+                msg = "Show Help..."
+                self.history.append({"bot": msg})
+                await inner_dc.context.send_activity(msg)
                 return DialogTurnResult(DialogTurnStatus.Waiting)
 
             if text in ("cancel", "quit"):
-                await inner_dc.context.send_activity("Cancelling")
+                msg = "Cancelling"
+                self.history.append({"bot": msg})
+                await inner_dc.context.send_activity(msg)
                 return await inner_dc.cancel_all_dialogs()
 
         return None

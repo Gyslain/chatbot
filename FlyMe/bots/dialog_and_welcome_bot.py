@@ -25,11 +25,13 @@ class DialogAndWelcomeBot(DialogBot):
         conversation_state: ConversationState,
         user_state: UserState,
         dialog: Dialog,
+        history,
         telemetry_client: BotTelemetryClient,
     ):
         super(DialogAndWelcomeBot, self).__init__(
-            conversation_state, user_state, dialog, telemetry_client
+            conversation_state, user_state, dialog, history, telemetry_client
         )
+        self.history = history
         self.telemetry_client = telemetry_client
 
     async def on_members_added_activity(
@@ -42,6 +44,7 @@ class DialogAndWelcomeBot(DialogBot):
             if member.id != turn_context.activity.recipient.id:
                 welcome_card = self.create_adaptive_card_attachment()
                 response = self.create_response(turn_context.activity, welcome_card)
+                self.history.append({"bot": "welcome_card"})
                 await turn_context.send_activity(response)
 
     def create_response(self, activity: Activity, attachment: Attachment):

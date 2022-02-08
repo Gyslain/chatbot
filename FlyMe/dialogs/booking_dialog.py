@@ -16,12 +16,14 @@ class BookingDialog(CancelAndHelpDialog):
 
     def __init__(
         self,
+        history,
         dialog_id: str = None,
         telemetry_client: BotTelemetryClient = NullTelemetryClient(),
     ):
         super(BookingDialog, self).__init__(
-            dialog_id or BookingDialog.__name__, telemetry_client
+            history, dialog_id or BookingDialog.__name__, telemetry_client
         )
+        self.history = history
         self.telemetry_client = telemetry_client
         text_prompt = TextPrompt(TextPrompt.__name__)
         text_prompt.telemetry_client = telemetry_client
@@ -43,14 +45,20 @@ class BookingDialog(CancelAndHelpDialog):
         self.add_dialog(text_prompt)
         self.add_dialog(ConfirmPrompt(ConfirmPrompt.__name__))
         self.add_dialog(
-            StartDateResolverDialog(StartDateResolverDialog.__name__, self.telemetry_client)
+            StartDateResolverDialog(
+                history, StartDateResolverDialog.__name__, self.telemetry_client
+            )
         )
         self.add_dialog(
-            EndDateResolverDialog(EndDateResolverDialog.__name__, self.telemetry_client)
+            EndDateResolverDialog(
+                history, EndDateResolverDialog.__name__, self.telemetry_client
+            )
         )
         self.add_dialog(waterfall_dialog)
 
         self.initial_dialog_id = WaterfallDialog.__name__
+
+        self.history = history
 
     async def destination_step(
         self, step_context: WaterfallStepContext
@@ -60,12 +68,12 @@ class BookingDialog(CancelAndHelpDialog):
 
         if booking_details.destination is None:
             print("Prompt for destination")
+            msg = "To what city would you like to travel?"
+            self.history.append({"bot": msg})
             return await step_context.prompt(
                 TextPrompt.__name__,
-                PromptOptions(
-                    prompt=MessageFactory.text("To what city would you like to travel?")
-                ),
-            )  # pylint: disable=line-too-long,bad-continuation
+                PromptOptions(prompt=MessageFactory.text(msg)),
+            )
 
         return await step_context.next(booking_details.destination)
 
@@ -77,12 +85,12 @@ class BookingDialog(CancelAndHelpDialog):
         booking_details.destination = step_context.result
         if booking_details.origin is None:
             print("Prompt for origin")
+            msg = "From what city will you be travelling?"
+            self.history.append({"bot": msg})
             return await step_context.prompt(
                 TextPrompt.__name__,
-                PromptOptions(
-                    prompt=MessageFactory.text("From what city will you be travelling?")
-                ),
-            )  # pylint: disable=line-too-long,bad-continuation
+                PromptOptions(prompt=MessageFactory.text(msg)),
+            )
 
         return await step_context.next(booking_details.origin)
 
@@ -94,13 +102,11 @@ class BookingDialog(CancelAndHelpDialog):
         booking_details.origin = step_context.result
         if booking_details.budget is None:
             print("Prompt for budget")
+            msg = "What is your maximum budget for the total ticket price?"
+            self.history.append({"bot": msg})
             return await step_context.prompt(
                 TextPrompt.__name__,
-                PromptOptions(
-                    prompt=MessageFactory.text(
-                        "What is your maximum budget for the total ticket price?"
-                    )
-                ),
+                PromptOptions(prompt=MessageFactory.text(msg)),
             )
 
         return await step_context.next(booking_details.budget)
@@ -156,6 +162,8 @@ class BookingDialog(CancelAndHelpDialog):
             f" from: { booking_details.origin } on: { booking_details.start_date}"
             f" return: { booking_details.end_date} with a budget of {booking_details.budget}."
         )
+
+        self.history.append({"bot": msg})
 
         # Offer a YES/NO prompt.
         return await step_context.prompt(

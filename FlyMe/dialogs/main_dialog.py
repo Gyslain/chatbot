@@ -11,6 +11,7 @@ from botbuilder.dialogs.prompts import TextPrompt, PromptOptions
 from botbuilder.core import (
     MessageFactory,
     TurnContext,
+    Severity,
     BotTelemetryClient,
     NullTelemetryClient,
 )
@@ -21,12 +22,16 @@ from flight_booking_recognizer import FlightBookingRecognizer
 from helpers.luis_helper import LuisHelper, Intent
 from .booking_dialog import BookingDialog
 
+import logging
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+
 
 class MainDialog(ComponentDialog):
     def __init__(
         self,
         luis_recognizer: FlightBookingRecognizer,
         booking_dialog: BookingDialog,
+        history,
         telemetry_client: BotTelemetryClient = None,
     ):
         super(MainDialog, self).__init__(MainDialog.__name__)
@@ -51,6 +56,15 @@ class MainDialog(ComponentDialog):
 
         self.initial_dialog_id = "WFDialog"
 
+        self.history = history
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.addHandler(
+            AzureLogHandler(
+                connection_string=f"InstrumentationKey={self.telemetry_client._instrumentation_key}"
+            )
+        )
+
     async def intro_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         if not self._luis_recognizer.is_configured:
             await step_context.context.send_activity(
@@ -67,6 +81,9 @@ class MainDialog(ComponentDialog):
             if step_context.options
             else "What can I help you with today?"
         )
+
+        self.history.append({"bot": message_text})
+
         prompt_message = MessageFactory.text(
             message_text, message_text, InputHints.expecting_input
         )
@@ -88,6 +105,19 @@ class MainDialog(ComponentDialog):
         )
 
         if intent == Intent.BOOK_FLIGHT.value and luis_result:
+
+            luis = {
+                "intent": intent,
+                "luis": {
+                    "destination": luis_result.destination,
+                    "origin": luis_result.origin,
+                    "start_date": luis_result.start_date,
+                    "end_date": luis_result.end_date,
+                    "budget": luis_result.budget,
+                },
+            }
+            self.history.append(luis)
+
             # Show a warning for Origin and Destination if we can't resolve them.
             await MainDialog._show_warning_for_unsupported_cities(
                 step_context.context, luis_result
@@ -107,6 +137,7 @@ class MainDialog(ComponentDialog):
             didnt_understand_text = (
                 "Sorry, I didn't get that. Please try asking in a different way"
             )
+            self.history.append({"bot": didnt_understand_text})
             didnt_understand_message = MessageFactory.text(
                 didnt_understand_text, didnt_understand_text, InputHints.ignoring_input
             )
@@ -129,10 +160,28 @@ class MainDialog(ComponentDialog):
                 f"I have you booked to {result.destination} from {result.origin}"
                 f" on {result.start_date} return on {result.end_date} with a budget of {result.budget}"
             )
+            self.history.append({"bot": msg_txt})
             message = MessageFactory.text(msg_txt, msg_txt, InputHints.ignoring_input)
             await step_context.context.send_activity(message)
+        else:
+            print("User didn't confirm, push history to insight")
 
+            # TODO not working
+            # self.telemetry_client.track_trace(
+            #     str(self.history), severity=Severity.warning
+            # )
+
+            self.logger.warning(str(self.history))
+
+        print("")
+        print("history :")
+        for hist in self.history:
+            print("   ", hist)
+        print("")
+
+        self.history.clear()
         prompt_message = "What else can I do for you?"
+        self.history.append({"bot": prompt_message})
         return await step_context.replace_dialog(self.id, prompt_message)
 
     @staticmethod

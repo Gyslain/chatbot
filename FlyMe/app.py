@@ -58,16 +58,19 @@ TELEMETRY_CLIENT = ApplicationInsightsTelemetryClient(
     client_queue_size=10,
 )
 
+TELEMETRY_CLIENT.track_trace("Starting bot")
 
-# telemetryLoggerMiddleware =  TelemetryLoggerMiddleware(TELEMETRY_CLIENT)
-# initializerMiddleware =  TelemetryInitializerMiddleware(telemetryLoggerMiddleware)
-# adapter.use(initializerMiddleware)
+HISTORY = []
 
 # Create dialogs and Bot
 RECOGNIZER = FlightBookingRecognizer(CONFIG, TELEMETRY_CLIENT)
-BOOKING_DIALOG = BookingDialog()
-DIALOG = MainDialog(RECOGNIZER, BOOKING_DIALOG, telemetry_client=TELEMETRY_CLIENT)
-BOT = DialogAndWelcomeBot(CONVERSATION_STATE, USER_STATE, DIALOG, TELEMETRY_CLIENT)
+BOOKING_DIALOG = BookingDialog(HISTORY)
+DIALOG = MainDialog(
+    RECOGNIZER, BOOKING_DIALOG, HISTORY, telemetry_client=TELEMETRY_CLIENT
+)
+BOT = DialogAndWelcomeBot(
+    CONVERSATION_STATE, USER_STATE, DIALOG, HISTORY, TELEMETRY_CLIENT
+)
 
 
 # Listen for incoming requests on /api/messages.
@@ -81,6 +84,10 @@ async def messages(req: Request) -> Response:
     activity = Activity().deserialize(body)
 
     print(f"activity.text : {activity.text}")
+    if activity.text:
+        HISTORY.append({"user": activity.text})
+    else:
+        HISTORY.append({"new user activity"})
 
     auth_header = req.headers["Authorization"] if "Authorization" in req.headers else ""
 

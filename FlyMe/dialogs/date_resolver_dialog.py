@@ -20,12 +20,14 @@ class StartDateResolverDialog(CancelAndHelpDialog):
 
     def __init__(
         self,
+        history,
         dialog_id: str = None,
         telemetry_client: BotTelemetryClient = NullTelemetryClient(),
     ):
         super(StartDateResolverDialog, self).__init__(
-            dialog_id or StartDateResolverDialog.__name__, telemetry_client
+            history, dialog_id or StartDateResolverDialog.__name__, telemetry_client
         )
+        self.history = history
         self.telemetry_client = telemetry_client
 
         date_time_prompt = DateTimePrompt(
@@ -57,6 +59,7 @@ class StartDateResolverDialog(CancelAndHelpDialog):
 
         if timex is None:
             # We were not given any date at all so prompt the user.
+            self.history.append({"bot": prompt_msg})
             return await step_context.prompt(
                 DateTimePrompt.__name__,
                 PromptOptions(  # pylint: disable=bad-continuation
@@ -68,6 +71,7 @@ class StartDateResolverDialog(CancelAndHelpDialog):
         # We have a Date we just need to check it is unambiguous.
         if "definite" in Timex(timex).types:
             # This is essentially a "reprompt" of the data we were given up front.
+            self.history.append({"bot": reprompt_msg})
             return await step_context.prompt(
                 DateTimePrompt.__name__, PromptOptions(prompt=reprompt_msg)
             )
@@ -96,12 +100,14 @@ class EndDateResolverDialog(CancelAndHelpDialog):
 
     def __init__(
         self,
+        history,
         dialog_id: str = None,
         telemetry_client: BotTelemetryClient = NullTelemetryClient(),
     ):
         super(EndDateResolverDialog, self).__init__(
-            dialog_id or EndDateResolverDialog.__name__, telemetry_client
+            history, dialog_id or EndDateResolverDialog.__name__, telemetry_client
         )
+        self.history = history
         self.telemetry_client = telemetry_client
 
         date_time_prompt = DateTimePrompt(
@@ -133,6 +139,7 @@ class EndDateResolverDialog(CancelAndHelpDialog):
 
         if timex is None:
             # We were not given any date at all so prompt the user.
+            self.history.append({"bot": prompt_msg})
             return await step_context.prompt(
                 DateTimePrompt.__name__,
                 PromptOptions(  # pylint: disable=bad-continuation
@@ -144,6 +151,7 @@ class EndDateResolverDialog(CancelAndHelpDialog):
         # We have a Date we just need to check it is unambiguous.
         if "definite" in Timex(timex).types:
             # This is essentially a "reprompt" of the data we were given up front.
+            self.history.append({"bot": reprompt_msg})
             return await step_context.prompt(
                 DateTimePrompt.__name__, PromptOptions(prompt=reprompt_msg)
             )

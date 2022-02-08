@@ -22,6 +22,7 @@ class DialogBot(ActivityHandler):
         conversation_state: ConversationState,
         user_state: UserState,
         dialog: Dialog,
+        history,
         telemetry_client: BotTelemetryClient,
     ):
         if conversation_state is None:
@@ -36,6 +37,7 @@ class DialogBot(ActivityHandler):
         self.conversation_state = conversation_state
         self.user_state = user_state
         self.dialog = dialog
+        self.history = history
         self.telemetry_client = telemetry_client
 
     async def on_message_activity(self, turn_context: TurnContext):
