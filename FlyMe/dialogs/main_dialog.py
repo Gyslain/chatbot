@@ -59,11 +59,12 @@ class MainDialog(ComponentDialog):
         self.history = history
 
         self.logger = logging.getLogger(__name__)
-        self.logger.addHandler(
-            AzureLogHandler(
-                connection_string=f"InstrumentationKey={self.telemetry_client._instrumentation_key}"
+        if telemetry_client:
+            self.logger.addHandler(
+                AzureLogHandler(
+                    connection_string=f"InstrumentationKey={self.telemetry_client._instrumentation_key}"
+                )
             )
-        )
 
     async def intro_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         if not self._luis_recognizer.is_configured:
