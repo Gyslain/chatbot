@@ -1,59 +1,18 @@
-import asyncio
-import json
 import pathlib
 import sys
-from http import HTTPStatus
 
 current = pathlib.Path(__file__).parent.parent
 sys.path.append(str(current))
 
 import aiounittest
-import pytest
-from adapter_with_error_handler import AdapterWithErrorHandler
-from aiohttp import web
-from aiohttp.web import Request, Response, json_response
 from botbuilder.applicationinsights import ApplicationInsightsTelemetryClient
-
-# from email_prompt import EmailPrompt
-from botbuilder.community.dialogs.prompts import EmailPrompt
-from botbuilder.core import (
-    BotFrameworkAdapterSettings,
-    ConversationState,
-    MemoryStorage,
-    MessageFactory,
-    TurnContext,
-    UserState,
-)
-from botbuilder.core.adapters import TestAdapter
-from botbuilder.core.integration import aiohttp_error_middleware
-from botbuilder.dialogs import DialogSet, DialogTurnStatus
-from botbuilder.dialogs.prompts import (
-    AttachmentPrompt,
-    PromptOptions,
-    PromptValidatorContext,
-)
-from botbuilder.integration.applicationinsights.aiohttp import (
-    AiohttpTelemetryProcessor,
-    bot_telemetry_middleware,
-)
-from botbuilder.schema import Activity, ActivityTypes, Attachment
-from bots import DialogAndWelcomeBot
+from botbuilder.integration.applicationinsights.aiohttp import AiohttpTelemetryProcessor
+from botbuilder.testing import DialogTestClient
 from config import DefaultConfig
 from dialogs import BookingDialog, MainDialog
-from dialogs.booking_dialog import BookingDialog
-
 from flight_booking_recognizer import FlightBookingRecognizer
-from helpers.luis_helper import Intent, LuisHelper
-
-from botbuilder.testing import DialogTestClient
-
 
 CONFIG = DefaultConfig()
-# SETTINGS = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)
-# MEMORY = MemoryStorage()
-# USER_STATE = UserState(MEMORY)
-# CONVERSATION_STATE = ConversationState(MEMORY)
-# ADAPTER = AdapterWithErrorHandler(SETTINGS, CONVERSATION_STATE)
 TELEMETRY_CLIENT = ApplicationInsightsTelemetryClient(
     CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY,
     telemetry_processor=AiohttpTelemetryProcessor(),
