@@ -12,5 +12,7 @@ pandas==1.3.5
 python-dotenv==0.19.2
 python_dateutil==2.8.2
 requests==2.23.0
-botbuilder.testing
-botbuilder.ai
+botbuilder.testing==4.14.1
+botbuilder.ai==4.14.1
+botbuilder-applicationinsights==4.14.1
+botbuilder-integration-applicationinsights-aiohttp==4.14.1
