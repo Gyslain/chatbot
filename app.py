@@ -83,10 +83,11 @@ async def messages(req: Request) -> Response:
 
     activity = Activity().deserialize(body)
 
-    print(f"activity.text : {activity.text}")
     if activity.text:
+        print(f"activity.text : {activity.text}")
         HISTORY.append({"user": activity.text})
     else:
+        print(f"new user activity")
         HISTORY.append({"new user activity"})
 
     auth_header = req.headers["Authorization"] if "Authorization" in req.headers else ""

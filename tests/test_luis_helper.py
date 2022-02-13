@@ -1,19 +1,12 @@
-import pathlib
-import sys
-
 import aiounittest
 from botbuilder.testing import DialogTestClient
-
-current = pathlib.Path(__file__).parent.parent
-sys.path.append(str(current))
-
 from config import DefaultConfig
 from dialogs import BookingDialog, MainDialog
 from flight_booking_recognizer import FlightBookingRecognizer
 
 
 class Test_LuisHelper(aiounittest.AsyncTestCase):
-    async def test_request(self):
+    async def test_requdialogsest(self):
         history = []
         recognizer = FlightBookingRecognizer(DefaultConfig())
         booking_dialog = BookingDialog(history)
