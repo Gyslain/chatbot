@@ -19,7 +19,7 @@ requests==2.23.0
 # numpy
 # matplotlib
 # flask
-# botbuilder-ai
+botbuilder-ai
 # botbuilder-applicationinsights
 # botbuilder-azure
 # botbuilder-core
