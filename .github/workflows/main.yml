@@ -15,7 +15,8 @@ jobs:
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
 
-      - run: echo "Creating the .env file from Github secrets."
+      - run: echo "Creating the .env file from Github secrets. ENV="
+      - run: echo $ENV
       - run: echo $ENV | base64 -d > ./.env
         env:
           ENV: ${{ secrets.ENV }}
