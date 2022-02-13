@@ -130,14 +130,5 @@ dmypy.json
 
 
 .vscode
-ressources
 *.zip
-frames
-*.AppImage
-ebot
-azure-cosmosdb-emulator-2.14.5-ff900d04.msi
-deploy.sh
-test_insight.py
-test.py
-test2.py
-
+work/
