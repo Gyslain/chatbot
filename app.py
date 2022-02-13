@@ -106,10 +106,3 @@ if __name__ == "__main__":
         web.run_app(APP, host="localhost", port=CONFIG.PORT)
     except Exception as error:
         raise error
-
-# I want to travel to Paris from Roma today for me and my friend.
-# hi there, i'm looking to go to brasilia between september 30 and october 4, could you help me?
-# i'm looking to go to brasilia from Paris between september 30 and october 4 for a budget of 1000$
-# I want to travel the first january 2022
-# I want to travel on 01/01/2022
-# I want to travel to paris for a budget of 1000$
