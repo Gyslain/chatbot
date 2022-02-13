@@ -16,5 +16,7 @@ class DefaultConfig:
     APP_PASSWORD = config["APP_PASSWORD"]
     LUIS_APP_ID = config["LUIS_APP_ID"]
     LUIS_API_KEY = config["LUIS_AUTHORING_KEY"]
-    LUIS_END_POINT = config["LUIS_AUTHORING_END_POINT"]
+    # TODO
+    # LUIS_END_POINT = config["LUIS_AUTHORING_END_POINT"]
+    LUIS_END_POINT = "luisressource2-authoring.cognitiveservices.azure.com"
     APPINSIGHTS_INSTRUMENTATION_KEY = config["APPINSIGHTS_INSTRUMENTATION_KEY"]
