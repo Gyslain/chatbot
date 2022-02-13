@@ -2,7 +2,7 @@
 
 ![FlyMe logo](https://user.oc-static.com/upload/2019/10/24/15719199766568_Capture%20d%E2%80%99e%CC%81cran%202019-10-24%20a%CC%80%2014.14.41.png)
 
-Chatbot which help to book flights.
+Chatbot that helps to book flights.
 
 This bot has been created using [Bot Framework](https://dev.botframework.com), it shows how to:
 
@@ -10,7 +10,7 @@ This bot has been created using [Bot Framework](https://dev.botframework.com), i
 - Implement a multi-turn conversation using Dialogs
 - Handle user interruptions for such things as `Help` or `Cancel`
 - Prompt for and validate requests for information from the user
-- Use [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/cloudservices) to monitor your bot
+- Use [Application Insights](https://docs.microsoft.com/azure/azure-monitor/app/cloudservices) to monitor the bot
 
 ## Prerequisites
 
