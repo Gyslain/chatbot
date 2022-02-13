@@ -50,85 +50,82 @@ class LuisHelper:
         result = None
         intent = None
 
-        try:
-            recognizer_result = await luis_recognizer.recognize(turn_context)
+        # TODO
+        # try:
+        recognizer_result = await luis_recognizer.recognize(turn_context)
 
-            intent = (
-                sorted(
-                    recognizer_result.intents,
-                    key=recognizer_result.intents.get,
-                    reverse=True,
-                )[:1][0]
-                if recognizer_result.intents
-                else None
+        intent = (
+            sorted(
+                recognizer_result.intents,
+                key=recognizer_result.intents.get,
+                reverse=True,
+            )[:1][0]
+            if recognizer_result.intents
+            else None
+        )
+
+        if intent == Intent.BOOK_FLIGHT.value:
+
+            print(f"Luis detects {intent} intent.")
+            result = BookingDetails()
+
+            # TO_CITY
+            # We need to get the result from the LUIS JSON which at every level returns an array.
+            to_city = recognizer_result.entities.get("$instance", {}).get(
+                Entities.TO_CITY.value, []
             )
+            print(f"to_city : {to_city}")
+            # [{'startIndex': 20, 'endIndex': 25, 'text': 'paris', 'type': 'dst_city', 'score': 0.9992835}]
+            if len(to_city) > 0:
+                if recognizer_result.entities.get(
+                    Entities.TO_CITY.value, [{"$instance": {}}]
+                )[0]:
+                    result.destination = to_city[0]["text"].capitalize()
+                    print(f"result.destination={result.destination}")
+                else:
+                    result.unsupported_airports.append(to_city[0]["text"].capitalize())
 
-            if intent == Intent.BOOK_FLIGHT.value:
+            # FROM_CITY
+            from_city = recognizer_result.entities.get("$instance", {}).get(
+                Entities.FROM_CITY.value, []
+            )
+            print(f"from_city : {from_city}")
+            if len(from_city) > 0:
+                if recognizer_result.entities.get(
+                    Entities.FROM_CITY.value, [{"$instance": {}}]
+                )[0]:
+                    result.origin = from_city[0]["text"].capitalize()
+                    print(f"result.origin={result.origin}")
+                else:
+                    result.unsupported_airports.append(
+                        from_city[0]["text"].capitalize()
+                    )
 
-                print(f"Luis detects {intent} intent.")
-                result = BookingDetails()
+            # BUDGET
+            budget = recognizer_result.entities.get("$instance", {}).get(
+                Entities.BUDGET.value, []
+            )
+            print(f"budget : {budget}")
+            if len(budget) > 0:
+                # TODO gerer le symbole $
+                if recognizer_result.entities.get(Entities.BUDGET.value, []):
+                    result.budget = budget[0]["text"]
+                    print(f"result.budget={result.budget}")
+                else:
+                    result.budget = None
 
-                # TO_CITY
-                # We need to get the result from the LUIS JSON which at every level returns an array.
-                to_city = recognizer_result.entities.get("$instance", {}).get(
-                    Entities.TO_CITY.value, []
-                )
-                print(f"to_city : {to_city}")
-                # [{'startIndex': 20, 'endIndex': 25, 'text': 'paris', 'type': 'dst_city', 'score': 0.9992835}]
-                if len(to_city) > 0:
-                    if recognizer_result.entities.get(
-                        Entities.TO_CITY.value, [{"$instance": {}}]
-                    )[0]:
-                        result.destination = to_city[0]["text"].capitalize()
-                        print(f"result.destination={result.destination}")
-                    else:
-                        result.unsupported_airports.append(
-                            to_city[0]["text"].capitalize()
-                        )
+            # START_DATE
+            start_date = recognizer_result.entities.get(Entities.START_DATE.value, [])
+            print(f"start_date : {start_date}")
+            result.start_date = date_recognition(start_date)
 
-                # FROM_CITY
-                from_city = recognizer_result.entities.get("$instance", {}).get(
-                    Entities.FROM_CITY.value, []
-                )
-                print(f"from_city : {from_city}")
-                if len(from_city) > 0:
-                    if recognizer_result.entities.get(
-                        Entities.FROM_CITY.value, [{"$instance": {}}]
-                    )[0]:
-                        result.origin = from_city[0]["text"].capitalize()
-                        print(f"result.origin={result.origin}")
-                    else:
-                        result.unsupported_airports.append(
-                            from_city[0]["text"].capitalize()
-                        )
+            # END_DATE
+            end_date = recognizer_result.entities.get(Entities.END_DATE.value, [])
+            print(f"end_date : {end_date}")
+            result.end_date = date_recognition(end_date)
 
-                # BUDGET
-                budget = recognizer_result.entities.get("$instance", {}).get(
-                    Entities.BUDGET.value, []
-                )
-                print(f"budget : {budget}")
-                if len(budget) > 0:
-                    # TODO gerer le symbole $
-                    if recognizer_result.entities.get(Entities.BUDGET.value, []):
-                        result.budget = budget[0]["text"]
-                        print(f"result.budget={result.budget}")
-                    else:
-                        result.budget = None
-
-                # START_DATE
-                start_date = recognizer_result.entities.get(
-                    Entities.START_DATE.value, []
-                )
-                print(f"start_date : {start_date}")
-                result.start_date = date_recognition(start_date)
-
-                # END_DATE
-                end_date = recognizer_result.entities.get(Entities.END_DATE.value, [])
-                print(f"end_date : {end_date}")
-                result.end_date = date_recognition(end_date)
-
-        except Exception as exception:
-            print(exception)
+        # except Exception as exception:
+        #     print(exception)
 
         return intent, result
 
