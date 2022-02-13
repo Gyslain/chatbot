@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 
+.vscode
 ressources
 *.zip
 frames
@@ -139,3 +140,4 @@ deploy.sh
 test_insight.py
 test.py
 test2.py
+
