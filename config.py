@@ -20,10 +20,21 @@ class DefaultConfig:
     LUIS_APP_ID = os.environ.get("LUIS_APP_ID", "")
     LUIS_API_KEY = os.environ.get("LUIS_AUTHORING_KEY", "")
     LUIS_END_POINT = os.environ.get("LUIS_AUTHORING_END_POINT", "")
-    
+
     APPINSIGHTS_INSTRUMENTATION_KEY = os.environ.get(
         "APPINSIGHTS_INSTRUMENTATION_KEY", ""
     )
+
+    def print(self):
+        print(f"PORT : {DefaultConfig.PORT}")
+        print(f"APP_ID : {DefaultConfig.APP_ID}")
+        print(f"APP_PASSWORD : {DefaultConfig.APP_PASSWORD}")
+        print(f"LUIS_APP_ID : {DefaultConfig.LUIS_APP_ID}")
+        print(f"LUIS_API_KEY : {DefaultConfig.LUIS_API_KEY}")
+        print(f"LUIS_END_POINT : {DefaultConfig.LUIS_END_POINT}")
+        print(
+            f"APPINSIGHTS_INSTRUMENTATION_KEY : {DefaultConfig.APPINSIGHTS_INSTRUMENTATION_KEY}"
+        )
 
 
 #     PORT = 3978
