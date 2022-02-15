@@ -58,7 +58,7 @@ TELEMETRY_CLIENT = ApplicationInsightsTelemetryClient(
     client_queue_size=10,
 )
 
-TELEMETRY_CLIENT.track_trace("Starting bot")
+# TELEMETRY_CLIENT.track_trace("Starting bot")
 
 HISTORY = []
 
