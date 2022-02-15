@@ -22,8 +22,8 @@ from flight_booking_recognizer import FlightBookingRecognizer
 from helpers.luis_helper import LuisHelper, Intent
 from .booking_dialog import BookingDialog
 
-import logging
-from opencensus.ext.azure.log_exporter import AzureLogHandler
+# import logging
+# from opencensus.ext.azure.log_exporter import AzureLogHandler
 
 
 class MainDialog(ComponentDialog):
@@ -58,13 +58,13 @@ class MainDialog(ComponentDialog):
 
         self.history = history
 
-        self.logger = logging.getLogger(__name__)
-        if telemetry_client:
-            self.logger.addHandler(
-                AzureLogHandler(
-                    connection_string=f"InstrumentationKey={self.telemetry_client._instrumentation_key}"
-                )
-            )
+        # self.logger = logging.getLogger(__name__)
+        # if telemetry_client:
+        #     self.logger.addHandler(
+        #         AzureLogHandler(
+        #             connection_string=f"InstrumentationKey={self.telemetry_client._instrumentation_key}"
+        #         )
+        #     )
 
     async def intro_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         if not self._luis_recognizer.is_configured:
@@ -167,12 +167,11 @@ class MainDialog(ComponentDialog):
         else:
             print("User didn't confirm, push history to insight")
 
-            # TODO not working
-            # self.telemetry_client.track_trace(
-            #     str(self.history), severity=Severity.warning
-            # )
+            self.telemetry_client.track_trace(
+                str(self.history), severity=Severity.warning
+            )
 
-            self.logger.warning(str(self.history))
+            # self.logger.warning(str(self.history))
 
         print("")
         print("history :")

@@ -35,9 +35,6 @@ from flight_booking_recognizer import FlightBookingRecognizer
 
 CONFIG = DefaultConfig()
 
-# TODO
-CONFIG.print()
-
 # Create adapter.
 # See https://aka.ms/about-bot-adapter to learn more about how bots work.
 SETTINGS = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)
@@ -112,7 +109,7 @@ def init_func(argv=None):
 if __name__ == "__main__":
     APP = init_func()
     try:
-        web.run_app(APP, host="0.0.0.0", port=CONFIG.PORT)
+        web.run_app(APP, host="localhost", port=CONFIG.PORT)
     except Exception as error:
         raise error
 
