@@ -1,23 +1,25 @@
 #%%
 import json
-import pandas as pd
-from pandas.api.types import is_datetime64_any_dtype as is_datetime
-import numpy as np
+import random
+import re
+import time
+import uuid
+from collections import defaultdict
+from functools import reduce
+
 import matplotlib
 import matplotlib.pyplot as plt
-from collections import defaultdict
-import re
+import numpy as np
+import pandas as pd
+import requests
 from azure.cognitiveservices.language.luis.authoring import LUISAuthoringClient
 from azure.cognitiveservices.language.luis.authoring.models import (
     ApplicationCreateObject,
 )
 from azure.cognitiveservices.language.luis.runtime import LUISRuntimeClient
-from msrest.authentication import CognitiveServicesCredentials
-from functools import reduce
-
-import json, time, uuid
-import random
 from dotenv import dotenv_values
+from msrest.authentication import CognitiveServicesCredentials
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
 #%%
 matplotlib.rcParams["figure.figsize"] = (20, 10)
@@ -33,7 +35,7 @@ predictionEndpoint = config["LUIS_PREDICTION_END_POINT"]
 #%%
 # We use a UUID to avoid name collisions.
 appName = "Fly Me " + str(uuid.uuid4())
-versionId = "0.1"
+versionId = "0.2"
 intentName = "BookFlight"
 
 #%%
@@ -155,25 +157,6 @@ for utterance in utterance_train:
     except:
         print(f"Failed to add : {utterance}")
 
-# %%
-# utterance = {
-#     "text": "Hi, can you please tell me how much would it cost to for two adults and a child to go from Seoul to Naples for five days?",
-#     "intentName": "BookFly",
-#     "entityLabels": [
-#         {"startCharIndex": 57, "endCharIndex": 60, "entityName": "n_adults"},
-#         # {"startCharIndex": 5, "endCharIndex": 6, "entityName": "n_children"},
-#         {"startCharIndex": 91, "endCharIndex": 96, "entityName": "or_city"},
-#         {"startCharIndex": 100, "endCharIndex": 106, "entityName": "dst_city"},
-#         {"startCharIndex": 111, "endCharIndex": 120, "entityName": "max_duration"},
-#     ],
-# }
-# client.examples.add(
-#     app_id,
-#     versionId,
-#     utterance,
-#     # {"enableNestedChildren": False},
-# )
-
 #%%
 client.train.train_version(app_id, versionId)
 waiting = True
@@ -226,8 +209,6 @@ for intent in predictionResponse.prediction.intents:
 print("Entities: {}".format(predictionResponse.prediction.entities))
 
 # %%
-import requests
-
 r = requests.get(
     "https://luisressource2.cognitiveservices.azure.com/luis/prediction/v3.0/apps/b1872a40-c654-43cb-9ce3-c31cfa9a91f8/slots/production/predict?verbose=true&show-all-intents=true&log=true&subscription-key=cced1802b9ba4474bb99dd742b40343d&query=paris%20to%20oslo"
 )
