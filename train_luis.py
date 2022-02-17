@@ -2,12 +2,10 @@ import json
 import os
 import random
 import time
-import urllib.parse
 import uuid
 from collections import defaultdict
 
 import dotenv
-import requests
 from azure.cognitiveservices.language.luis.authoring import LUISAuthoringClient
 from azure.cognitiveservices.language.luis.authoring.models import (
     ApplicationCreateObject,
@@ -29,15 +27,7 @@ def luis_add_app(client, appName, luis_version_id, luis_intent_name):
     return luis_api_id
 
 
-def train_LUIS_model(
-    frames,
-    client,
-    luis_intent_name,
-    luis_api_id,
-    luis_version_id,
-    test_size_perc=0.2,
-):
-    # Define the entities from data
+def make_utterances_train(frames, intent_name):
     entities_g = defaultdict(int)
     for frame in frames:
         turn = frame["turns"][0]
@@ -63,12 +53,6 @@ def train_LUIS_model(
     entities_g = list(filter(lambda x: entities_g[x] > 50, entities_g))
     entities_g.remove("intent")
     print(f"Entities detected from data : {entities_g}")
-
-    # Add entity to app
-    print("")
-    for ent in entities_g:
-        modelId = client.model.add_entity(luis_api_id, luis_version_id, name=ent)
-        print(f"Entity added : {ent} (id={modelId})")
 
     # Create utteraces list
     utterance_list = []
@@ -98,18 +82,57 @@ def train_LUIS_model(
                     )
         if len(labels) > 0:
             utterance = {"text": turn["text"]}
-            utterance["intentName"] = luis_intent_name
+            utterance["intentName"] = intent_name
             utterance["entityLabels"] = labels
             utterance_list.append(utterance)
-    print(f"\nThere are {len(utterance_list)} utterances for intent {luis_intent_name}")
+    print(f"\nThere are {len(utterance_list)} utterances for intent {intent_name}")
 
-    # Create data train and test
-    random.shuffle(utterance_list)
-    test_length = int(test_size_perc * len(utterance_list))
-    utterance_train = utterance_list[:-test_length]
-    utterance_test = utterance_list[-test_length:]
-    print(f"train size : {len(utterance_train)}")
-    print(f"test size : {len(utterance_test)}")
+    return entities_g, utterance_list
+
+
+def make_utterances_test(frames, intent_name, entities_g):
+    # Create utteraces list
+    utterance_list = []
+    for frame in frames:
+        turn = frame["turns"][0]
+        entities = {}
+        for act in turn["labels"]["acts"]:
+            if act["name"] == "inform":
+                for arg in act["args"]:
+                    entities[arg["key"]] = arg["val"]
+
+        if "intent" in entities:
+            entities.pop("intent")
+
+        labels = []
+        for k in entities:
+            if k in entities_g:
+                v = str(entities[k])
+                pos = turn["text"].find(v)
+                if pos >= 0:
+                    labels.append(
+                        {
+                            "entity": k,
+                            "startPos": pos,
+                            "endPos": pos + len(v),
+                        }
+                    )
+        if len(labels) > 0:
+            utterance = {"text": turn["text"]}
+            utterance["intent"] = intent_name
+            utterance["entities"] = labels
+            utterance_list.append(utterance)
+    print(f"\nThere are {len(utterance_list)} utterances for intent {intent_name}")
+
+    return utterance_list
+
+
+def train_LUIS_model(
+    utterance_train,
+    client,
+    luis_api_id,
+    luis_version_id,
+):
 
     for utterance in utterance_train:
         try:
@@ -151,11 +174,7 @@ def train_LUIS_model(
     # Mark the app as public so we can query it using any prediction endpoint.
     client.apps.update_settings(luis_api_id, is_public=True)
 
-    responseEndpointInfo = client.apps.publish(
-        luis_api_id, luis_version_id, is_staging=False
-    )
-
-    return utterance_train, utterance_test
+    client.apps.publish(luis_api_id, luis_version_id, is_staging=False)
 
 
 if __name__ == "__main__":
@@ -165,6 +184,7 @@ if __name__ == "__main__":
     DATA_PATH = "./frames/"
     LUIS_VERSION_ID = "0.1"
     LUIS_INTENT_NAME = "BookFlight"
+    TEST_SIZE_PERC = 0.2
 
     LUIS_APP_ID = os.getenv("LUIS_APP_ID", "")
     LUIS_AUTHORING_KEY = os.getenv("LUIS_AUTHORING_KEY", "")
@@ -182,9 +202,31 @@ if __name__ == "__main__":
         appName = "Fly Me " + str(uuid.uuid4())
         LUIS_APP_ID = luis_add_app(client, appName, LUIS_VERSION_ID, LUIS_INTENT_NAME)
 
-    utterance_train, utterance_test = train_LUIS_model(
-        DATA_PATH, client, LUIS_INTENT_NAME, LUIS_APP_ID, LUIS_VERSION_ID
-    )
+    frames = json.load(open(DATA_PATH + "frames.json"))
+
+    # Create data train and test
+    random.shuffle(frames)
+    test_length = int(TEST_SIZE_PERC * len(frames))
+    frames_train = frames[:-test_length]
+    frames_test = frames[-test_length:]
+    print(f"train size : {len(frames_train)}")
+    print(f"test size : {len(frames_test)}")
+
+    entities, utterance_train = make_utterances_train(frames_train, LUIS_INTENT_NAME)
+    utterance_test = make_utterances_test(frames_test, LUIS_INTENT_NAME, entities)
+
+    # save utterance_test to evaluate model in luis page
+    with open("utterance_test.json", "w") as outfile:
+        json.dump(utterance_test, outfile)
+
+    # Add entity to app
+    print("")
+    for ent in entities:
+        modelId = client.model.add_entity(LUIS_APP_ID, LUIS_VERSION_ID, name=ent)
+        print(f"Entity added : {ent} (id={modelId})")
+
+    # train model
+    train_LUIS_model(utterance_train, client, LUIS_APP_ID, LUIS_VERSION_ID)
 
     # runtimeCredentials = CognitiveServicesCredentials(LUIS_PREDICTION_KEY)
     # clientRuntime = LUISRuntimeClient(
@@ -201,16 +243,3 @@ if __name__ == "__main__":
     # for intent in predictionResponse.prediction.intents:
     #     print("\t{}".format(json.dumps(intent)))
     # print("Entities: {}".format(predictionResponse.prediction.entities))
-
-    query_base = (
-        f"{LUIS_AUTHORING_END_POINT}/luis/prediction/v3.0/apps/{LUIS_APP_ID}"
-        f"/slots/production/predict?verbose=true&show-all-intents=true&log=true"
-        f"&subscription-key={LUIS_AUTHORING_KEY}&query="
-    )
-    query = "I want to book a fly from Paris to Roma."
-    print(f"Query : {query}")
-
-    r = requests.get(query_base + urllib.parse.quote_plus(query))
-    print(f"Luis return : {r.text}")
-
-    # utterance_test
